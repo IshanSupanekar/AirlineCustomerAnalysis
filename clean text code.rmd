@@ -1,0 +1,199 @@
+---
+title: "HW#1"
+author: "Ishan Supanekar"
+date: "9/28/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+install.packages("knitr")
+library(knitr)
+# change to your own working directory
+knitr::opts_knit$set(root.dir = "/Users/ishansupanekar/Documents/MGSC410/MGSC410")
+setwd("/Users/ishansupanekar/Documents/MGSC410/MGSC410")
+
+# set seed to your own favorite number
+set.seed(1818)
+options(width=70)
+
+# general rchunk code options
+opts_chunk$set(tidy.opts=list(width.wrap=50),tidy=TRUE, size = "vsmall")
+opts_chunk$set(message = FALSE,
+               warning = FALSE,
+               cache = TRUE,
+               autodep = TRUE,
+               cache.comments = FALSE,
+               collapse = TRUE,
+               fig.width = 5,  
+               fig.height = 4,
+               fig.align='center')
+
+```
+
+
+
+```{r}
+install.packages('tidyverse')
+install.packages('stringr')
+install.packages('tidyr')
+install.packages('ggplot2')
+install.packages('dplyr')
+install.packages('coefplot')
+install.packages('tidytext')
+install.packages('leaps')
+install.packages('sentimentr')
+install.packages('caret')
+install.packages('ROSE')
+install.packages('forcats')
+install.packages('shiny')
+install.packages('ggpubr')
+install.packages('splus2R')
+install.packages('writexl')
+
+library(writexl)
+library(splus2R)
+library(tidyverse)
+library(stringr)
+library(tidyr)
+library(ggplot2)
+library(dplyr)
+library(ISLR)
+library(coefplot)
+library(leaps)
+library(sentimentr)
+library(caret)
+library(ROSE)
+library(forcats)
+library(MASS)
+library(shiny)
+library(ggpubr)
+```
+#Exploring 
+```{r}
+
+write_xlsx(Tweets_minusgold,"/Users/ishansupanekar/Documents/MGSC410/MGSC410/tweetsminusgold.xlsx")
+
+summary(Tweets_minusgold)
+table(Tweets_minusgold$airline_sentiment)
+summary(Tweets_minusgold$airline_sentiment_confidence) #average is .9002
+
+#i want to find the average sentiment condfidence scores for each positive, negative and neutral
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+```
+
+
+#Data Cleaning
+
+```{r}
+# Dropping n/a's
+Tweets
+tweetsminusgold
+view(tweetsminusgold)
+#mutate colummn for level of confidence:
+
+Tweets_minusgold <- mutate(Tweets_minusgold, confidence_grade = if(airline_sentiment_confidence, 
+                                                                                                                # mutate statment for if between .5 .8 = good, .8 .99 = strong, 1.00 = perfect, else for less than .5
+asc <- c(Tweets_minusgold$airline_sentiment_confidence)
+view(asc)
+test <- 0
+
+for (col in asc)
+  {if (is.number(col))
+    {test = if(col == 1.00) {"perfect"} 
+      else if(between(col, 0.8, 0.99)) {"strong"} 
+      else if(between(col, 0.5, 0.79))  {"good"}     #attempt to create user_region in R, wanting to segment
+                                                      #confidence by grades of perfect, strong, good,
+      else {"weak"}
+    Tweets_minusgold <- mutate(Tweets_minusgold, test)}
+  {else(is.null(col))
+    {test = if}
+    {(test == ) {"null"}
+    Tweets_minusgold <- mutate(Tweets_minusgold, test)}}
+
+view(Tweets_minusgold)
+                                  
+
+
+# text cleaning 
+
+#getting the text column
+text <- Tweets_minusgold$text
+#setting text to lower case
+text <- tolower(text)
+
+#removing mentions, urls, emojis, numbers, punctuation
+text <- gsub("@\\w+", "", text)
+text <- gsub("https?://.+", "", text)
+text <- gsub("\\d+\\w*\\d*", "", text)
+text <- gsub("#\\w+", "", text)
+text <- gsub("[^\x01-\x7F]", "", text)
+text <- gsub("[[:punct:]]", " ", text)
+
+#Removing Spaces and newlines
+text <- gsub("\n", " ", text)
+text <- gsub("^\\s+", "", text)
+text <- gsub("\\s+$", "", text)
+text <- gsub("[ |\t]+", " ", text)
+
+# Put the data to a new column
+Tweets_minusgold["fix_text"] <- text
+head(Tweets_minusgold$fix_text, 10)
+view(Tweets_minusgold)
+
+
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+ggplot(Tweets_minusgold, aes(x = airline, fill = airline_sentiment)) + geom_bar()
+
+ggplot(Tweets_minusgold, aes(x = airline_sentiment_confidence))+
+  geom_histogram(binwidth = 0.2)+ 
+  facet_wrap(~airline_sentiment)
+
+ggplot(Tweets_minusgold, aes(x = airline_sentiment_confidence))+
+  geom_histogram(binwidth = 0.2)+ 
+  facet_wrap(~airline_sentiment)
+
+ggplot(Tweets_minusgold, aes(x = negativereason))+
+  geom_histogram(binwidth = 0.2,stat = "count")+ 
+  facet_wrap(~airline)
+
+
+library(tidytext)
+# Remove Stopwords
+stop_id <- scan(paste(getwd(), "/stopwords-id.txt", sep=""), character(), sep="\n")
+# Create dataframe of the stop words
+stop_words <- data.frame(
+  word <- stop_id,
+  stringsAsFactors = F        #NOT sure how to do stopwords
+)
+colnames(stop_words) <- "word"
+# Convert to tidy format
+tidy_text <- data_fix %>%
+  select(created_at, id, fix_text) %>%
+  # Tokenize the word from the tweets
+  unnest_tokens(input = fix_text, output = word) %>%
+  # Remove stop words
+  anti_join(stop_words, by="word")
+
+table(tweetsminusgold$user_timezone)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
